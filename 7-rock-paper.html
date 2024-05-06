@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .image{
+      height: 50px;
+      width: 50px;
+    }
+  </style>
+</head>
+<body>
+    
+  <p>Rock,Paper & Scissors</p>
+  <button class="js-rock">Rock</button>
+  <button onclick="updatePlayermove('paper'); ">Paper</button>
+  <button onclick="updatePlayermove('scissors'); ">Scissors</button>
+  <button class="js-reset">Reset Score</button>
+  <button onclick="autoPlay(); stopPlay();" class="js-auto">AutoPlay</button>
+  <button onclick="updateScore();">View Score</button>
+
+  <div>
+    <p class="js-p"></p>
+  </div>
+  
+  <p class="js-choice"></p>
+  <p class="js-score"></p>
+  
+  <script>
+    let score=
+      JSON.parse(localStorage.getItem('scores'));
+    if(score===null){
+      score={
+        wins:0,
+        losses:0,
+        ties:0
+      }
+    };
+
+    isautoplay=false; 
+    let intervalId; 
+    function autoPlay(){
+      if(!isautoplay){
+        intervalId= setInterval( function(){
+        move=computerMove;
+        updatePlayermove(move);
+        updateScore();
+        },1000);
+        isautoplay=true;
+      }
+      else{
+        clearInterval(intervalId);
+        isautoplay=false;
+      }
+    };
+
+    document.querySelector('.js-rock').
+    addEventListener('click',()=>{
+      updatePlayermove('rock');
+    });
+    document.querySelector('.js-reset').
+    addEventListener('click',()=>{
+      document.querySelector('.js-p').innerHTML=`Are you sure want to reset?
+       <button class="js-yes">Yes</button>
+       <button class="js-no">No</button>`;
+       document.querySelector('.js-yes').
+       addEventListener('click',()=>{
+        score.wins=0; score.losses=0; score.ties=0;
+        localStorage.removeItem('scores'); 
+        updateScore();
+        document.querySelector('.js-p').innerHTML=' ';
+       })
+       document.querySelector('.js-no').
+       addEventListener('click',()=>{
+        updateScore();
+        document.querySelector('.js-p').innerHTML=' ';
+       })
+    });
+    function stopPlay(){
+      let auto=document.querySelector('.js-auto');
+      if(auto.innerHTML==='AutoPlay'){
+        auto.innerHTML='Stop!';
+      }
+      else{
+        auto.innerHTML='AutoPlay';
+      }
+    };
+    document.body.addEventListener('keydown',(event)=>{
+      if(event.key==='r'){
+        updatePlayermove('rock');
+      }
+      else if(event.key==='p'){
+        updatePlayermove('paper');
+      }
+      else if(event.key==='s'){
+        updatePlayermove('scissors');
+      }
+      else if(event.key==='a'){
+        autoPlay();
+        let auto=document.querySelector('.js-auto');
+        if(auto.innerHTML==='AutoPlay'){
+          auto.innerHTML='Stop!';
+        }
+        else{
+          auto.innerHTML='AutoPlay';
+        }
+        }
+      else if(event.key==='Backspace'){
+        document.querySelector('.js-p').innerHTML=`Are you sure want to reset?
+        <button class="js-yes">Yes</button>
+        <button class="js-no">No</button>`;
+        document.querySelector('.js-yes').
+        addEventListener('click',()=>{
+        score.wins=0; score.losses=0; score.ties=0;
+        localStorage.removeItem('scores'); 
+          updateScore();
+        document.querySelector('.js-p').innerHTML=' ';
+       })
+        document.querySelector('.js-no').
+        addEventListener('click',()=>{
+          updateScore();
+        document.querySelector('.js-p').innerHTML=' ';
+       })
+      }
+    });
+    
+    let result='';
+    function updatePlayermove(move){
+      updateCoumtermove();
+      if(move===computerMove){
+        result='Tie!';
+        score.ties+=1;
+      }
+      else if(move=='rock' && computerMove==='scissors' || move==='paper'&& computerMove==='rock' || move==='scissors' && computerMove==='paper'){
+        result='You Win!';
+        score.wins+=1;
+      }
+      else{
+        result='You Lose!';
+        score.losses+=1;
+      }
+
+      localStorage.setItem('scores',JSON.stringify(score));
+
+      const choice=document.querySelector('.js-choice');
+      choice.innerHTML=`${result}\n Your <img src="${move}-emoji.png" class="image"> - Computer <img src="${computerMove}-emoji.png" class="image">`;
+
+      updateScore();
+
+      /* alert(`You:${move}\nComputer:${computerMove}\nResult:${result}
+Wins:${score.wins} Losses:${score.losses} Ties:${score.ties}`);*/
+    };
+
+    let computerMove='';
+    function updateCoumtermove(){
+      const value=Math.random();
+      if(value>0 && value<0.33){
+        computerMove='rock';
+      }
+      else if(value>0.3 && value<0.66){
+        computerMove='paper';
+      }
+      else{
+        computerMove='scissors';
+      }
+    };
+
+    function updateScore(){
+      const update=document.querySelector('.js-score');
+      update.innerHTML=`Wins:${score.wins} Losses:${score.losses} Ties:${score.ties}`;
+      };
+  </script>
+</body>
+</html>
